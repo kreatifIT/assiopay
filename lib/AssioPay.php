@@ -32,6 +32,7 @@ class AssioPay
             'password' => $password,
         ];
 
+        // TODO if request fails, send email to rex error address
         /*$this->client = new Client(
             [
                 'headers' => [
@@ -41,7 +42,7 @@ class AssioPay
         );*/
     }
 
-    public function getSettingValue($key)
+    public function getSettingValue($key): string
     {
         return rex_config::get('assiopay', $key);
     }
@@ -52,7 +53,6 @@ class AssioPay
      */
     public function getCardInfoForCardHash(string $cardHash): ?array
     {
-        return null;
         return [
             'hash' => 'dasf345',
             'balance' => '500',

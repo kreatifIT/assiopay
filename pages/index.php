@@ -10,6 +10,9 @@ $field->setLabel('Use Sandbox Mode');
 
 $form->addFieldset('Sandbox Credentials');
 
+$field = $form->addTextField('assiopay_sandbox_endpoint', null, ["class" => "form-control"]);
+$field->setLabel('Endpoint-URL');
+
 $field = $form->addTextField('assiopay_sandbox_mail', null, ["class" => "form-control"]);
 $field->setLabel('Email');
 
@@ -17,7 +20,8 @@ $field = $form->addTextField('assiopay_sandbox_password', null, ["class" => "for
 $field->setLabel('Password');
 
 $form->addFieldset('Live Credentials');
-
+$field = $form->addTextField('assiopay_live_endpoint', null, ["class" => "form-control"]);
+$field->setLabel('Endpoint-URL');
 $field = $form->addTextField('assiopay_live_mail', null, ["class" => "form-control"]);
 $field->setLabel('Email');
 

@@ -1,0 +1,6 @@
+{
+    "require": {
+        "guzzlehttp/guzzle": "^7.0",
+        "99designs/http-signatures": "^4.0"
+    }
+}

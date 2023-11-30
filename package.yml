@@ -2,7 +2,6 @@
 package: assiopay
 author: Kreatif GmbH
 version: '0.0.1'
-
 page:
     title: translate:assiopay
     perm: assiopay

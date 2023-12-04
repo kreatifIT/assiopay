@@ -81,6 +81,21 @@ class AssioPay
      */
     public function getCardInfoForCardHash(string $cardHash): ?array
     {
+        $response = $this->client->post('admin/cardinfo', [
+            'body' => json_encode([
+                'cardHash' => $cardHash,
+            ]),
+            'content-type' => 'application/json',
+        ]);
+        $response = json_decode($response->getBody(), true);
+        dump($response);
+        exit;
+
+        if ($response['errorCode'] == 'card_hash_not_found') {
+            // TODO handle card hash not found
+            return null;
+        }
+
         return [
             'hash' => 'dasf345',
             'balance' => '500',
@@ -92,4 +107,4 @@ class AssioPay
     }
 }
 
-?>
+

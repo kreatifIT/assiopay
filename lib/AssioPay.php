@@ -81,8 +81,6 @@ class AssioPay
      */
     public function getCardInfoForCardHash(string $cardHash): ?array
     {
-        // card hash test
-        $cardHash = '038614014';
         try {
             $response = $this->client->post('admin/cardinfo', [
                 'body' => json_encode([

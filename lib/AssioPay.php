@@ -4,6 +4,7 @@ namespace AssioPay;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\ClientException;
 use Kreatif\Project\Project;
 use rex_config;
 
@@ -47,12 +48,11 @@ class AssioPay
                     'mail' => $mail,
                     'password' => $password,
                 ]),
-                'content-type' => 'application/json',
+                'Content-Type' => 'application/json',
             ]);
             $response = json_decode($response->getBody(), true);
-            dump($response);
-            exit;
-            $this->accessToken = $response['token'];
+            $this->accessToken = $response['accessToken'];
+
             // initialise new client with authorization header, so we don't need to define this for every request
             $this->client = new Client([
                 'base_uri' => $baseUri,
@@ -81,29 +81,36 @@ class AssioPay
      */
     public function getCardInfoForCardHash(string $cardHash): ?array
     {
-        $response = $this->client->post('admin/cardinfo', [
-            'body' => json_encode([
-                'cardHash' => $cardHash,
-            ]),
-            'content-type' => 'application/json',
-        ]);
-        $response = json_decode($response->getBody(), true);
-        dump($response);
-        exit;
+        // card hash test
+        $cardHash = '038614014';
+        try {
+            $response = $this->client->post('admin/cardinfo', [
+                'body' => json_encode([
+                    'cardHash' => $cardHash,
+                ]),
+            ]);
+            $responseData = json_decode($response->getBody(), true);
+            dump($responseData);
+            exit;
 
-        if ($response['errorCode'] == 'card_hash_not_found') {
-            // TODO handle card hash not found
+            return [
+                'hash' => 'dasf345',
+                'balance' => '500',
+                'value' => '10',
+                'fractionedTicketValue' => '30',
+                'expiry' => '2024-06-06',
+                'nofWholeTickets' => '3jk4df435',
+            ];
+        } catch (ClientException $e) {
+            // 404 = Card Hash not found
+            if ($e->getCode() != 404) {
+                $responseData = $e->getResponse();
+                $responseBodyAsString = $responseData->getBody()->getContents();
+                $errorMessage = 'Authentication Error : '.$responseBodyAsString;
+                Project::sendFoodErrorMail($errorMessage);
+            }
             return null;
         }
-
-        return [
-            'hash' => 'dasf345',
-            'balance' => '500',
-            'value' => '10',
-            'fractionedTicketValue' => '30',
-            'expiry' => '2024-06-06',
-            'nofWholeTickets' => '3jk4df435',
-        ];
     }
 }
 

@@ -87,18 +87,14 @@ class AssioPay
                     'cardHash' => $cardHash,
                 ]),
             ]);
-            $responseData = json_decode($response->getBody(), true);
-            dump($responseData);
-            exit;
-
-            return [
-                'hash' => 'dasf345',
-                'balance' => '500',
-                'value' => '10',
-                'fractionedTicketValue' => '30',
-                'expiry' => '2024-06-06',
-                'nofWholeTickets' => '3jk4df435',
-            ];
+            $data = json_decode($response->getBody(), true);
+            $floatFields = ['balance', 'value', 'fractionedTicketValue', 'maxSpendableAmount'];
+            foreach ($data as $key => $value) {
+                if (in_array($key, $floatFields)) {
+                    $data[$key] = (float) str_replace(',', '.', trim($value));
+                }
+            }
+            return $data;
         } catch (ClientException $e) {
             // 404 = Card Hash not found
             if ($e->getCode() != 404) {

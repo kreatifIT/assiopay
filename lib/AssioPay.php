@@ -5,6 +5,7 @@ namespace AssioPay;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 use Kreatif\Project\Project;
 use rex_config;
 
@@ -59,13 +60,13 @@ class AssioPay
                 'headers' => [
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
-                    'Authorization' => 'Bearer '.$this->accessToken,
+                    'Authorization' => 'Bearer ' . $this->accessToken,
                 ],
             ]);
         } catch (BadResponseException $e) {
             $response = $e->getResponse();
             $responseBodyAsString = $response->getBody()->getContents();
-            $errorMessage = 'Authentication Error : '.$responseBodyAsString;
+            $errorMessage = 'Authentication Error : ' . $responseBodyAsString;
             Project::sendFoodErrorMail($errorMessage);
         }
     }
@@ -91,7 +92,7 @@ class AssioPay
             $floatFields = ['balance', 'value', 'fractionedTicketValue', 'maxSpendableAmount'];
             foreach ($data as $key => $value) {
                 if (in_array($key, $floatFields)) {
-                    $data[$key] = (float) str_replace(',', '.', trim($value));
+                    $data[$key] = (float)str_replace(',', '.', trim($value));
                 }
             }
             return $data;
@@ -100,11 +101,40 @@ class AssioPay
             if ($e->getCode() != 404) {
                 $responseData = $e->getResponse();
                 $responseBodyAsString = $responseData->getBody()->getContents();
-                $errorMessage = 'Authentication Error : '.$responseBodyAsString;
+                $errorMessage = 'Authentication Error : ' . $responseBodyAsString;
                 Project::sendFoodErrorMail($errorMessage);
             }
             return null;
         }
+    }
+
+
+    public function getFoodTransactions(string $companyFiscalCode, string $workerFiscalCode, \DateTime $startDate, \DateTime $endDate): ?array
+    {
+        try {
+            $response = $this->client->post('admin/transactions', [
+                'query' => [
+                    'dataDA' => $startDate->format('d/m/Y'),
+                    'dataA' => $endDate->format('d/m/Y'),
+                    'partitaIvaAzienda' => $companyFiscalCode,
+                    'codFiscaleUtente' => $workerFiscalCode,
+                ],
+            ]);
+            $data = json_decode($response->getBody(), true);
+
+            if (isset($data['transactionResponseList'])) {
+                foreach ($data['transactionResponseList'] as &$value) {
+                    $value['amount'] = $value['amount'] / 100;
+                }
+                return $data['transactionResponseList'];
+            }
+        } catch (BadResponseException $e) {
+            $responseData = $e->getResponse();
+            $responseBodyAsString = $responseData->getBody()->getContents();
+            $errorMessage = 'Authentication Error : ' . $responseBodyAsString;
+            Project::sendFoodErrorMail($errorMessage);
+        }
+        return null;
     }
 }
 

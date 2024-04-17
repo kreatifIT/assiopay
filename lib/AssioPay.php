@@ -12,6 +12,10 @@ use rex_config;
 class AssioPay
 {
 
+    const FOOD_TYPE_CUMULABILE = 'MF';
+    const FOOD_TYPE_GIORNALIERO = 'MFG';
+    const FOOD_TYPE_MENSADIFFUS = 'MFM';
+
     /** @var Client $client */
     protected Client $client;
 
@@ -109,17 +113,19 @@ class AssioPay
     }
 
 
-    public function getFoodTransactions(string $companyFiscalCode, string $workerFiscalCode, \DateTime $startDate, \DateTime $endDate): ?array
+    public function getFoodTransactions(string $companyFiscalCode, string $workerFiscalCode, \DateTime $startDate, \DateTime $endDate, string $foodType = ''): ?array
     {
         try {
-            $response = $this->client->post('admin/transactions', [
-                'query' => [
-                    'dataDA' => $startDate->format('d/m/Y'),
-                    'dataA' => $endDate->format('d/m/Y'),
-                    'partitaIvaAzienda' => $companyFiscalCode,
-                    'codFiscaleUtente' => $workerFiscalCode,
-                ],
-            ]);
+            $query = [
+                'dataDA' => $startDate->format('d/m/Y'),
+                'dataA' => $endDate->format('d/m/Y'),
+                'partitaIvaAzienda' => $companyFiscalCode,
+                'codFiscaleUtente' => $workerFiscalCode,
+            ];
+            if ('' !== $foodType) {
+                $query['tipoCarta'] = $foodType;
+            }
+            $response = $this->client->post('admin/transactions', ['query' => $query]);
             $data = json_decode($response->getBody(), true);
 
             if (isset($data['transactionResponseList'])) {

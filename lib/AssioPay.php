@@ -48,7 +48,7 @@ class AssioPay
                     'Accept' => 'application/json',
                 ],
             ]);
-            $response = $client->post('user/login', [
+            $response = $client->post('web/user/login', [
                 'body' => json_encode([
                     'mail' => $mail,
                     'password' => $password,

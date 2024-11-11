@@ -14,6 +14,7 @@ class AssioPay
 
     const FOOD_TYPE_CUMULABILE = 'MF';
     const FOOD_TYPE_GIORNALIERO = 'MFG';
+    const FOOD_TYPE_TITOLARE = 'MFA';
     const FOOD_TYPE_MENSADIFFUS = 'MFM';
 
     /** @var Client $client */
